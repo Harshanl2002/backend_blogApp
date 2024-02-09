@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 
-const routes = new Router();
+const router = new Router();
 
 
 export default router;
