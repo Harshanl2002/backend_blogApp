@@ -1,10 +1,16 @@
-const mongoose=require('mongoose');
-require("dotenv").config();
+//imports
+import  mongoose from "mongoose";
+import dotenv from 'dotenv';
 
-function  connect(){
+//configs
+dotenv.config();
+
+//mongo DB Connection Function
+function connect(){
     mongoose.connect(process.env.URI).then(()=>{
         console.log("Connection to DB was Success!!!");
     }).catch(e=>console.error(e));
 }
 
-module.exports=connect;
+//exporting the connection function
+export default connect;
