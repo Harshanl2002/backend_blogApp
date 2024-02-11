@@ -4,7 +4,8 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import connect  from './utils/connectoDB.js';
 import dotenv from 'dotenv';
-import routes from "./Routes/routes.js"
+import routes from "./Routes/routes.js";
+import {NotFound,errorHandeler} from './middleware/Error.middleware.js';
 
 
 
@@ -20,6 +21,7 @@ app.use(bodyParser.json({extented:true}));
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(cors({Credential: true, origin: frontend }));
 app.use("/api/",routes);
+app.use(NotFound, errorHandeler);
 
 
 
