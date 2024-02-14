@@ -13,7 +13,7 @@ router.post("/register",RegisterUser);
 
 router.post("/login",LoginUser);
 
-router.get("/byID/:id",getUserByID);
+router.get("/byID/",getUserByID);
 
 router.post("/change-avatar",changeAvathar);
 

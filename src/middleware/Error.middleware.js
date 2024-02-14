@@ -1,8 +1,8 @@
+import HTTPError from "../Models/Error.model.js";
 
 // unkonwn route (404)
 const NotFound=(req,res,next)=>{
-    const error=new Error(`Not Found  - ${req.originalUrl}`);
-    res.status(404);
+    const error=new HTTPError(`Not Found  - ${req.originalUrl}`,404);
     next(error);
 }
 
