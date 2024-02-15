@@ -7,4 +7,4 @@ class HTTPError extends Error
     }
 }
 
-export default HTTPError;
+module.exports = HTTPError;

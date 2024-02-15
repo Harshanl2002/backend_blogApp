@@ -1,11 +1,12 @@
-//Imports
-import express from 'express';
-import bodyParser from 'body-parser';
-import cors from 'cors';
-import connect  from './utils/connectoDB.js';
-import dotenv from 'dotenv';
-import routes from "./Routes/routes.js";
-import {NotFound,errorHandeler} from './middleware/Error.middleware.js';
+//consts
+const express =require( 'express');
+const bodyParser =require( 'body-parser');
+const cors =require( 'cors');
+const connect  =require( './utils/connectoDB.js');
+const dotenv =require( 'dotenv');
+const routes =require( "./Routes/routes.js");
+const {NotFound,errorHandeler} =require( './middleware/Error.middleware.js');
+const fileupload =require( 'express-fileupload');
 
 
 
@@ -19,6 +20,8 @@ const frontend=process.env.FRONTEND_URL||"*";
 // Middlewares are used on 
 app.use(bodyParser.json({extented:true}));
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(fileupload());
+app.use('./uploads',express.static(__dirname + './uploads'));
 app.use(cors({Credential: true, origin: frontend }));
 app.use("/api/",routes);
 app.use(NotFound, errorHandeler);

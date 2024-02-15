@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import {RegisterUser,LoginUser,getUserByID,changeAvathar,UpdateUser,getAuthors} from "../Controller/user.controller.js";
+const { Router } = require('express');
+const {RegisterUser,LoginUser,getUserByID,changeAvathar,UpdateUser,getAuthors} = require("../Controller/user.controller.js");
 
 
 const router = new Router();
@@ -21,4 +21,4 @@ router.put("/update-User",UpdateUser);
 
 router.get("/authors",getAuthors);
 
-export default router;
+module.exports = router;

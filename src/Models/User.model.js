@@ -1,5 +1,5 @@
-//imports
-import { Schema,model } from "mongoose";
+//consts
+const { Schema,model } = require("mongoose");
 
 
 const UserSchema=new Schema({
@@ -10,5 +10,6 @@ const UserSchema=new Schema({
     posts:{type:Number,default:0}
 });
 
-export const User = model("User",UserSchema);
+const User = model("User",UserSchema);
+module.exports =User;
 //exporting mongoose Model to use in other files. 

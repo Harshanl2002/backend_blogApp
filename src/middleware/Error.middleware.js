@@ -1,4 +1,4 @@
-import HTTPError from "../Models/Error.model.js";
+const HTTPError = require("../Models/Error.model.js");
 
 // unkonwn route (404)
 const NotFound=(req,res,next)=>{
@@ -15,4 +15,4 @@ const errorHandeler=(error,req,res,next)=>{
     res.status(error.code ||500).json({message:error.message||'Internal Server Error'})
 }
 
-export {NotFound,errorHandeler};
+module.exports = {NotFound,errorHandeler};
