@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const {RegisterUser,LoginUser,getUserByID,changeAvathar,UpdateUser,getAuthors} = require("../Controller/user.controller.js");
+const authmiddleware=require("../middleware/auth.middleware.js")
 
 
 const router = new Router();
@@ -13,11 +14,11 @@ router.post("/register",RegisterUser);
 
 router.post("/login",LoginUser);
 
-router.get("/byID/",getUserByID);
+router.get("/byID/",authmiddleware,getUserByID);
 
-router.post("/change-avatar",changeAvathar);
+router.post("/change-avatar",authmiddleware,changeAvathar);
 
-router.put("/update-User",UpdateUser);
+router.put("/update-User",authmiddleware,UpdateUser);
 
 router.get("/authors",getAuthors);
 
