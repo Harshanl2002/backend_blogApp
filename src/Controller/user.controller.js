@@ -112,7 +112,7 @@ const changeAvathar= async (req,res,next)=>{
         //deleting old avatar if exists
         if(user.avatar)
         {
-            fs.unlink(path.join(__dirname,"../","uploads",user.avatar),(err)=>{
+            fs.unlink(path.join(__dirname,"../assets/","uploads",user.avatar),(err)=>{
                if(err)
                {
                 return next(new HTTPError(err));
@@ -131,7 +131,7 @@ const changeAvathar= async (req,res,next)=>{
        //getting the extension of uploaded file
        let newfilename=splitedfilename[0]+"_"+uuid()+'.'+splitedfilename[splitedfilename.length -1];
 
-       avatar.mv(path.join(__dirname,'../','uploads',newfilename),async (err) =>{
+       avatar.mv(path.join(__dirname,'../assets/','uploads',newfilename),async (err) =>{
         if(err)
         {
             return next(new HTTPError(err,500));
