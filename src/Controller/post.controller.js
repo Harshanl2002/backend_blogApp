@@ -4,6 +4,7 @@ const HTTPError=require('../Models/Error.model');
 const fs=require("fs");
 const path=require("path");
 const {v4:uuid}=require("uuid");
+const ObjectId=require("mongoose").Types.ObjectId;
 //===============================================================createPost=================================================
 // Post Request {link:"/api/post/",security:"PROTECTED"}
 const createPost=async (req,res,next)=>{
@@ -13,7 +14,7 @@ const createPost=async (req,res,next)=>{
         const {thumpnail}=req.files;
         if(!title||!content||!thumpnail||!catagory||!userId)
         {
-            return next(new HTTPError("fill all the  fields ",400));
+            return next(new HTTPError("fill all the  fields",400));
         }
         if(thumpnail>2000000)
         {
@@ -52,7 +53,60 @@ const createPost=async (req,res,next)=>{
 //===============================================================EditPost=================================================
 // Put Request {link:"/api/post/edit/:id",security:"PROTECTED"}
 const EditPost=async (req,res,next)=>{
-    res.json({message:"Editpost"});
+    try
+    {
+        const postid=new ObjectId(req.query);
+        const {title,content,catagory}=req.body;
+        const  userId=req.user.id;
+        const {thumpnail}=req.files;
+        let post=await Post.findById(postid);
+        if(!post||post.AuthorID!==userId)
+        {
+            return next(new HTTPError("UserID not Matched!!",400));
+        }
+        if(!title||!content||!thumpnail||!catagory||!userId)
+        {
+            return next(new HTTPError("fill all the  fields",400));
+        }
+        if(thumpnail>2000000)
+        {
+            return next(new HTTPError("thumpnail size must be less then 2mb",400));
+        }
+        let user=await User.findById(userId);
+        if(!user)
+        {
+            return next(new HTTPError("Not a user!!!",404));
+        }
+        let filename=thumpnail.name;
+        let splitedfilename=filename.split('.');
+        //getting the extension of uploaded file
+        let newfilename=splitedfilename[0]+"_"+uuid()+'.'+splitedfilename[splitedfilename.length -1];
+        if(post.thumpnail.split('_')[0]!==splitedfilename[0])
+        {
+            fs.unlink(path.join(__dirname,"../assets/","thumpnails",post.thumpnail),(err)=>{
+                if(err)
+                {
+                    return next(new HTTPError(err));
+                }
+            });
+            thumpnail.mv(path.join(__dirname,"../assets/","thumpnails",newfilename),async(err)=>{
+                if(err)
+                {
+                    return next(new HTTPError(err,400));
+                }
+            })
+        }
+        const updatedPost=await Post.findByIdAndUpdate(postid,{title,content,catagory,thumpnail:newfilename});
+        if(!updatedPost)
+        {
+            return next(new HTTPError("Something went wrong"));
+        }
+        res.status(200).json({message:"Post Updated Sucessfully!!!",updatedPost:updatedPost});
+    }
+    catch(err)
+    {
+        return next(new HTTPError(err));
+    }
 }
 //===============================================================DeletePost=================================================
 // DEl Request {link:"/api/post/del/:id",security:"PROTECTED"}
