@@ -111,28 +111,89 @@ const EditPost=async (req,res,next)=>{
 //===============================================================DeletePost=================================================
 // DEl Request {link:"/api/post/del/:id",security:"PROTECTED"}
 const DeletePost=async (req,res,next)=>{
-    res.json({message:"DeletePost"});
+    try {
+        const postId = new ObjectId(req.params.id);
+        const userId=req.user.id;
+        let user=await User.findById(userId);
+        if(!user)
+        {
+            return next(new HTTPError("something went Wrong!!",501));
+        }
+        const DeletedPost= await Post.findByIdAndDelete(postId);
+        if(!DeletedPost)
+        {
+            return next(new HTTPError("post not Found",400));
+        }
+        user.posts--;
+        const updatedUser= await User.findByIdAndUpdate(userId,user);
+        if(!updatedUser)
+        {
+            return next(new HTTPError("User not Found",400));
+        }
+        res.status(200).json({message:"post was Deleted",DeletedPost,updatedUser});
+    } catch (error) {
+        return next(new HTTPError(error));
+    }
 }
 //===============================================================getPost=================================================
 // Get Request {link:"/api/post/:id",security:"UnPROTECTED"}
 const getPost=async (req,res,next)=>{
-    res.json({message:"getpost"});
+    try {
+        const postId = new ObjectId(req.params.id);
+        const post=await Post.findById(postId);
+        if(!post)
+        {
+            return next(new HTTPError("No Post Found!!!",404));
+        }
+        res.status(200).json(post);
+    } catch (error) {
+        return next(new HTTPError(error))
+    }    
 }
 //===============================================================GetAllPosts=================================================
 // Get Request {link:"/api/post/",security:"UNPROTECTED"}
 const getAllPosts=async (req,res,next)=>{
-    res.json({message:"get all posts!!!"});
+    try {
+        const posts=await Post.find();
+        if(posts.length===0)
+        {
+            return next(new HTTPError("Post not Found / Something went wrong!!!",404));
+        }
+        res.status(200).json(posts);
+    } catch (error) {
+        return next(new HTTPError(error));
+    }
 }
 //===============================================================EditPost=================================================
 // Get Request {link:"/api/post/Author/:id",security:"UNPROTECTED"}
 const getAllPostsofAnAuthor=async (req,res,next)=>{
-    res.json({message:"get posts of Author"});
+    try {
+        const authorid= new ObjectId(req.params.id);
+        const userPosts= await Post.find({AuthorID:authorid});
+        if(userPosts.length===0)
+        {
+            return next(new HTTPError("No Posts Found!!!",400));
+        }
+        res.status(200).json(userPosts);
+    } catch (error) {
+        return next(new HTTPError(error));
+    }
 }
 
 //===============================================================EditPost=================================================
 // Get Request {link:"/api/post/catagory/:cat",security:"UNPROTECTED"}
 const getAllPostsbyCatagory=async (req,res,next)=>{
-    res.json({message:"get posts of catagory"});
+    try {
+        const cat= req.params.cat;
+        const catagorypost= await Post.find({catagory:cat});
+        if(catagorypost.length===0)
+        {
+            return next(new HTTPError("No Posts Found!!!",400));
+        }
+        res.status(200).json(catagorypost);
+    } catch (error) {
+        return next(new HTTPError(error));
+    }
 }
 
 module.exports={createPost,EditPost,DeletePost,getPost,getAllPosts,getAllPostsofAnAuthor,getAllPostsbyCatagory};
