@@ -154,7 +154,7 @@ const getPost=async (req,res,next)=>{
 // Get Request {link:"/api/post/",security:"UNPROTECTED"}
 const getAllPosts=async (req,res,next)=>{
     try {
-        const posts=await Post.find();
+        const posts=await Post.find().sort({updatedAt:-1});
         if(posts.length===0)
         {
             return next(new HTTPError("Post not Found / Something went wrong!!!",404));
@@ -169,7 +169,7 @@ const getAllPosts=async (req,res,next)=>{
 const getAllPostsofAnAuthor=async (req,res,next)=>{
     try {
         const authorid= new ObjectId(req.params.id);
-        const userPosts= await Post.find({AuthorID:authorid});
+        const userPosts= await Post.find({AuthorID:authorid}).sort({updatedAt:-1});
         if(userPosts.length===0)
         {
             return next(new HTTPError("No Posts Found!!!",400));
@@ -185,7 +185,7 @@ const getAllPostsofAnAuthor=async (req,res,next)=>{
 const getAllPostsbyCatagory=async (req,res,next)=>{
     try {
         const cat= req.params.cat;
-        const catagorypost= await Post.find({catagory:cat});
+        const catagorypost= await Post.find({catagory:cat}).sort({updatedAt:-1});
         if(catagorypost.length===0)
         {
             return next(new HTTPError("No Posts Found!!!",400));
