@@ -2,10 +2,10 @@
 const express =require( 'express');
 const bodyParser =require( 'body-parser');
 const cors =require( 'cors');
-const connect  =require( './utils/connectoDB.js');
+const connect  =require( './src/utils/connectoDB.js');
 const dotenv =require( 'dotenv');
-const routes =require( "./Routes/routes.js");
-const {NotFound,errorHandeler} =require( './middleware/Error.middleware.js');
+const routes =require( "./src/Routes/routes.js");
+const {NotFound,errorHandeler} =require( './src/middleware/Error.middleware.js');
 const fileupload =require( 'express-fileupload');
 
 
@@ -21,8 +21,8 @@ app.use(bodyParser.json({extented:true}));
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(fileupload());
 // app.use(cors);
-app.use('/assets/uploads',express.static(__dirname + '/assets/uploads'));
-app.use('/assets/thumpnails',express.static(__dirname + '/assets/thumpnails'));
+app.use('/src/assets/uploads',express.static(__dirname + '/src/assets/uploads'));
+app.use('/src/assets/thumpnails',express.static(__dirname + '/src/assets/thumpnails'));
 app.use(cors());
 app.use("/api/",routes);
 app.use(NotFound, errorHandeler);
