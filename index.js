@@ -23,6 +23,7 @@ app.use(fileupload());
 // app.use(cors);
 app.use('/src/assets/uploads',express.static(__dirname + '/src/assets/uploads'));
 app.use('/src/assets/thumpnails',express.static(__dirname + '/src/assets/thumpnails'));
+console.log(__dirname + '/src/assets/thumpnails');
 app.use(cors());
 app.use("/api/",routes);
 app.use(NotFound, errorHandeler);
