@@ -11,6 +11,7 @@ const createPost=async (req,res,next)=>{
     try {
         const {title,content,catagory}=req.body;
         const  userId=req.user.id;
+        // console.log(req);
         const {thumpnail}=req.files;
         if(!title||!content||!thumpnail||!catagory||!userId)
         {
@@ -47,6 +48,7 @@ const createPost=async (req,res,next)=>{
         })
         
     } catch (error) {
+        console.log(error);
         return next(new HTTPError(error));
     }
 }
@@ -55,51 +57,68 @@ const createPost=async (req,res,next)=>{
 const EditPost=async (req,res,next)=>{
     try
     {
-        const postid=new ObjectId(req.query);
+        const postid=new ObjectId(req.params);
         const {title,content,catagory}=req.body;
         const  userId=req.user.id;
-        const {thumpnail}=req.files;
+        const thumpnail=req.files?req.files.thumpnail:null;
         let post=await Post.findById(postid);
         if(!post||post.AuthorID!==userId)
         {
             return next(new HTTPError("UserID not Matched!!",400));
         }
-        if(!title||!content||!thumpnail||!catagory||!userId)
+        if(!title||!content||!catagory||!userId)
         {
             return next(new HTTPError("fill all the  fields",400));
         }
-        if(thumpnail>2000000)
+        let updatedPost;
+        if(thumpnail)
         {
-            return next(new HTTPError("thumpnail size must be less then 2mb",400));
+            if(thumpnail>2000000)
+            {
+                return next(new HTTPError("thumpnail size must be less then 2mb",400));
+            }
+            let user=await User.findById(userId);
+            if(!user)
+            {
+                return next(new HTTPError("Not a user!!!",404));
+            }
+            let filename=thumpnail.name;
+            let splitedfilename=filename.split('.');
+            //getting the extension of uploaded file
+            let newfilename=splitedfilename[0]+"_"+uuid()+'.'+splitedfilename[splitedfilename.length -1];
+            if(post.thumpnail.split('_')[0]!==splitedfilename[0])
+            {
+                fs.unlink(path.join(__dirname,"../assets/","thumpnails",post.thumpnail),(err)=>{
+                    if(err)
+                    {
+                        return next(new HTTPError(err));
+                    }
+                });
+                thumpnail.mv(path.join(__dirname,"../assets/","thumpnails",newfilename),async(err)=>{
+                    if(err)
+                    {
+                        return next(new HTTPError(err,400));
+                    }
+                })
+            }
+            updatedPost=await Post.findByIdAndUpdate(postid,{title,content,catagory,thumpnail:newfilename});
+            if(!updatedPost)
+            {
+                return next(new HTTPError("Something went wrong"));
+            }
         }
-        let user=await User.findById(userId);
-        if(!user)
+        else
         {
-            return next(new HTTPError("Not a user!!!",404));
-        }
-        let filename=thumpnail.name;
-        let splitedfilename=filename.split('.');
-        //getting the extension of uploaded file
-        let newfilename=splitedfilename[0]+"_"+uuid()+'.'+splitedfilename[splitedfilename.length -1];
-        if(post.thumpnail.split('_')[0]!==splitedfilename[0])
-        {
-            fs.unlink(path.join(__dirname,"../assets/","thumpnails",post.thumpnail),(err)=>{
-                if(err)
-                {
-                    return next(new HTTPError(err));
-                }
-            });
-            thumpnail.mv(path.join(__dirname,"../assets/","thumpnails",newfilename),async(err)=>{
-                if(err)
-                {
-                    return next(new HTTPError(err,400));
-                }
-            })
-        }
-        const updatedPost=await Post.findByIdAndUpdate(postid,{title,content,catagory,thumpnail:newfilename});
-        if(!updatedPost)
-        {
-            return next(new HTTPError("Something went wrong"));
+            let user=await User.findById(userId);
+            if(!user)
+            {
+                return next(new HTTPError("Not a user!!!",404));
+            }
+            updatedPost=await Post.findByIdAndUpdate(postid,{title,content,catagory});
+            if(!updatedPost)
+            {
+                return next(new HTTPError("Something went wrong"));
+            }
         }
         res.status(200).json({message:"Post Updated Sucessfully!!!",updatedPost:updatedPost});
     }
@@ -124,6 +143,12 @@ const DeletePost=async (req,res,next)=>{
         {
             return next(new HTTPError("post not Found",400));
         }
+        fs.unlink(path.join(__dirname,"../assets/","thumpnails",DeletedPost.thumpnail),(err)=>{
+            if(err)
+            {
+                return next(new HTTPError(err));
+            }
+        });
         user.posts--;
         const updatedUser= await User.findByIdAndUpdate(userId,user);
         if(!updatedUser)
@@ -140,6 +165,7 @@ const DeletePost=async (req,res,next)=>{
 const getPost=async (req,res,next)=>{
     try {
         const postId = new ObjectId(req.params.id);
+        // console.log(postId)
         const post=await Post.findById(postId);
         if(!post)
         {

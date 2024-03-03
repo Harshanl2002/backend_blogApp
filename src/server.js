@@ -14,15 +14,16 @@ const fileupload =require( 'express-fileupload');
 dotenv.config();
 const app=express();
 const  port=process.env.PORT || 3000;
-const frontend=process.env.FRONTEND_URL||"*";
 
 
 // Middlewares are used on 
 app.use(bodyParser.json({extented:true}));
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(fileupload());
-app.use('./uploads',express.static(__dirname + './uploads'));
-app.use(cors({Credential: true, origin: frontend }));
+// app.use(cors);
+app.use('/assets/uploads',express.static(__dirname + '/assets/uploads'));
+app.use('/assets/thumpnails',express.static(__dirname + '/assets/thumpnails'));
+app.use(cors());
 app.use("/api/",routes);
 app.use(NotFound, errorHandeler);
 

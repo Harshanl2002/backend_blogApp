@@ -14,7 +14,7 @@ router.post("/register",RegisterUser);
 
 router.post("/login",LoginUser);
 
-router.get("/byID/",authmiddleware,getUserByID);
+router.get("/byID/:id",getUserByID);
 
 router.post("/change-avatar",authmiddleware,changeAvathar);
 

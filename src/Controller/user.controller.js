@@ -15,6 +15,7 @@ const {v4:uuid}=require('uuid');
 // POST Request {link:"/api/user/register",security:"UNPROTECTED"}
 const RegisterUser= async (req,res,next)=>{
     try {
+        // console.log("register user");
         const {name,email,password,password2}= req.body;
         if(!name||!email||!password||!password2)
         {
@@ -40,6 +41,7 @@ const RegisterUser= async (req,res,next)=>{
             name : name ,
             email : newemail ,
             password:encryptedpass,
+            avatar:"basic",
         });
         const  savedUser = await user.save();
         res.status(201).json(`new User ${name} has been registered sucessfully!!!`);
@@ -84,7 +86,7 @@ const LoginUser= async (req,res,next)=>{
 // GET Request {link:"/api/user/:id",security:"PROTECTED"}
 const getUserByID= async (req,res,next)=>{
     try {
-        const {id}=req.user;
+        const {id}=req.params;
         // console.log(req.user,id);
         const user=  await User.findById(id).select("-password");
         
@@ -154,6 +156,7 @@ const changeAvathar= async (req,res,next)=>{
 // put Request {link:"/api/user/update-User",security:"PROTECTED"}
 const UpdateUser= async (req,res,next)=>{
     try {
+        // console.log(req.body);
         const {name,email,currentpass,newpass,confirmPass} = req.body;
         
         //Checking for validation
@@ -168,22 +171,23 @@ const UpdateUser= async (req,res,next)=>{
         {
             return next(new HTTPError( "Email already exists",400));
         }
-
-        const  passwordMatched=await bcrypt.compare(currentpass,user.password);
-        if(!passwordMatched)
-        {
-            return next( new HTTPError("Password is Incorrect!!",401)) ;
-        }
-
-        if(newpass!==confirmPass)
-        {
-            return next(new HTTPError("Password does not match",400));
-        }
-        //Updating the fields
         let hashedpass=req.user.password;
-        if(newpass&&confirmPass)
+        if(currentpass)
         {
-            hashedpass=await bcrypt.hash(newpass,10);
+            const  passwordMatched=await bcrypt.compare(currentpass,user.password);
+            if(!passwordMatched)
+            {
+                return next( new HTTPError("Password is Incorrect!!",401)) ;
+            }
+            if((newpass!==confirmPass)&&(newpass<6)&&(confirmPass<6))
+            {
+                return next(new HTTPError("Password does not match or less then 6 char",400));
+            }
+            //Updating the fields
+            if(newpass&&confirmPass)
+            {
+                hashedpass=await bcrypt.hash(newpass,10);
+            }
         }
         const updateduserdata=await User.findByIdAndUpdate(req.user.id ,{name:name,email:email,password:hashedpass},{new:true});
         if(!updateduserdata)

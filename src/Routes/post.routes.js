@@ -6,7 +6,7 @@ const router = new Router();
 
 router.get("/",getAllPosts);
 router.post("/",authmiddleware,createPost);
-router.put("/edit/",authmiddleware,EditPost);
+router.put("/edit/:id",authmiddleware,EditPost);
 router.delete("/del/:id",authmiddleware,DeletePost);
 router.get("/:id",getPost);
 router.get("/author/:id",getAllPostsofAnAuthor);
